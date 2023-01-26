@@ -1,23 +1,44 @@
-import logo from './logo.svg';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
+import About from './components/About';
+import Home from './components/Home';
+import Login from './components/Login';
+import Navbar from './components/Navbar';
+import NotFound from './components/NotFound';
+import Profile from './components/Profile';
+import Register from './components/Register';
+import { useEffect, useState } from 'react';
+import app from './firebase/firebase.init';
+
+const auth = getAuth(app);
 
 function App() {
+  const [user, setUser] = useState('');
+
+  useEffect(() => {
+    onAuthStateChanged(auth, data => {
+      if (data) {
+        setUser(data);
+      }
+      else {
+        console.log('no user found!');
+      }
+    })
+  }, [])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar />
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/about' element={<About />} />
+        <Route path='/profile' element={<Profile user={user} />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='*' element={<NotFound />} />
+      </Routes>
     </div>
   );
 }
